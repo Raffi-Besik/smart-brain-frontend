@@ -6,13 +6,8 @@ import Rank from './components/rank/rank';
 import FaceRecognition from './components/faceRecognition/faceRecognition';
 import SignIn from './components/signIn/signIn';
 import Register from './components/register/register';
-import Clarifai from 'clarifai';
 import Particles from "react-particles-js";
 import './App.css';
-
-const app = new Clarifai.App({
-    apiKey: 'bace6c4f7d484d43ae616437ea251b5e'
-});
 
 const particlesOptions = {
     particles: {
@@ -26,23 +21,25 @@ const particlesOptions = {
     }
 };
 
+const initialState = {
+    input: '',
+    imageUrl: '',
+    box: {},
+    route: 'signIn',
+    isSignedIn: false,
+    user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+    }
+};
+
 class App extends Component {
     constructor() {
         super();
-        this.state = {
-            input: '',
-            imageUrl: '',
-            box: {},
-            route: 'signIn',
-            isSignedIn: false,
-            user: {
-                id: '',
-                name: '',
-                email: '',
-                entries: 0,
-                joined: ''
-            }
-        }
+        this.state = initialState;
     }
 
     loadUser = (data) => {
@@ -81,12 +78,17 @@ class App extends Component {
 
     onButtonSubmit = () => {
         this.setState({imageUrl: this.state.input});
-        app.models.predict(
-            Clarifai.FACE_DETECT_MODEL,
-            this.state.input)
+        fetch('https://ancient-citadel-72095.herokuapp.com/imageurl', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                input: this.state.input
+            })
+        })
+            .then(response => response.json())
             .then(response => {
                 if (response) {
-                    fetch('http://localhost:3000/image', {
+                    fetch('https://ancient-citadel-72095.herokuapp.com/image', {
                         method: 'put',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
@@ -95,17 +97,17 @@ class App extends Component {
                     })
                         .then(response => response.json())
                         .then(count => {
-                            this.setState(Object.assign(this.state.user, { entries: count}))
+                            this.setState(Object.assign(this.state.user, {entries: count}))
                         })
+                        .catch(console.log);
                 }
                 this.displayFaceBox(this.calculateFaceLocation(response))
-            })
-            .catch(err => console.log(err));
+            }).catch(console.log);
     };
 
     onRouteChange = (route) => {
         if (route === 'signOut') {
-            this.setState({isSignedIn: false});
+            this.setState(initialState);
         } else if (route === 'home') {
             this.setState({isSignedIn: true});
         }
