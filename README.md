@@ -1,3 +1,12 @@
+# smart-brain-frontend
+
+## Final project of the Zero To Mastery Web Development Course by Andrea Neagoie.
+
+Front-end of a simple web-application that detects faces in any image supplied.
+
+Build with JavaScript and React.
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
